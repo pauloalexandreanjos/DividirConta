@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Contas</title>
+<script src="vue.js"></script>
+<style>
+table, th, td {
+	border: 1px solid black;
+	border-collapse: collapse;
+}
+th, td {
+  padding: 15px;
+}
+th {
+  text-align: center;
+}
+table {
+  border-spacing: 5px;
+}
+</style>
+</head>
+<div id="app">
+	<br>
+	Nome: <input v-model="inputPessoaNome"><br>
+	<button v-on:click="adicionarPessoa">Add Pessoa</button><br>
+	<br>
+	<table>
+		<tr>
+			<th colspan="2">Pessoas</th>
+		</tr>
+		<tr>
+			<th>ID</th><th>Nome</th><th>Check</th>
+		</tr>
+		<tr v-for="pessoa in pessoas">
+			<td>{{pessoa.id}}</td><td>{{pessoa.nome}}</td><td>{{pessoa.checked}}</td>
+		</tr>
+	</table>
+	<br>
+	Nome: <input v-model="inputItem.nome"><br>
+	Valor: <input v-model="inputItem.valor"><br>
+	Quem Pagou:<select v-model="inputItem.quempagou">
+		<option v-for="pessoa in pessoas" v-bind:value="pessoa.id">{{pessoa.nome}}</option>
+	</select><br>
+	Quem usou: 
+	<span v-for="pessoa in pessoas">
+		{{pessoa.nome}}: <input type="checkbox" v-on:click="setaCheckbox(pessoa.id)" :checked="pessoa.checked">
+	</span>
+	<button v-on:click="adicionarItem">Add Item</button><br>
+	<br>
+	<table>
+		<tr>
+			<th colspan="5">Itens</th>
+		</tr>
+		<tr>
+			<th>ID</th><th>Item</th><th>Preço</th><th>Quem pagou?</th><th>Quem usou?</th>
+		</tr>
+		<tr v-for="item in itens">
+			<td>{{item.id}}</td><td>{{item.nome}}</td><td>{{item.valor}}</td><td>{{item.quempagou}}</td><td>{{item.quemusou}}</td>
+		</tr>
+	</table>
+</div>
+<body>
+<script>
+	var app = new Vue({
+		data: {
+			itens: [], // { id: "", nome: "", valor: "", quempagou: 0, quemusou: [1, 2, 3]}
+			pessoas: [], // { id: 0, nome: ""}
+			indexPessoa: 1,
+			inputPessoaNome: "",
+			indexItem: 1,
+			inputItem: {
+				id: 0,
+				nome: "",
+				valor: "",
+				quempagou: 0,
+				quemusou: ""
+			}
+		},
+		methods: {
+			adicionarPessoa() {
+				this.pessoas.push({ id: this.indexPessoa, nome: this.inputPessoaNome, checked: false});
+				this.inputPessoaNome = "";
+				this.indexPessoa++;
+			},
+			adicionarItem() {
+				alert('quemusou',this.inputItem.quemusou);
+			},
+			setaCheckbox(item) {
+				//if ()
+				alert(item);
+			}
+		}
+	}).$mount("#app");
+</script>
+</body>
+</html>
