@@ -29,10 +29,10 @@ table {
 			<th colspan="2">Pessoas</th>
 		</tr>
 		<tr>
-			<th>ID</th><th>Nome</th><th>Check</th>
+			<th>ID</th><th>Nome</th>
 		</tr>
 		<tr v-for="pessoa in pessoas">
-			<td>{{pessoa.id}}</td><td>{{pessoa.nome}}</td><td>{{pessoa.checked}}</td>
+			<td>{{pessoa.id}}</td><td>{{pessoa.nome}}</td>
 		</tr>
 	</table>
 	<br>
@@ -55,75 +55,23 @@ table {
 			<th>ID</th><th>Item</th><th>Preco</th><th>Quem pagou?</th><th>Quem usou?</th>
 		</tr>
 		<tr v-for="item in itens">
-			<td>{{item.id}}</td><td>{{item.nome}}</td><td>{{item.valor}}</td><td>{{item.quempagou}}</td><td>{{formatItens(item.quemusou)}}</td>
+			<td>{{item.id}}</td><td>{{item.nome}}</td><td>{{item.valor}}</td><td>{{ getPessoa(item.quempagou).nome }}</td><td>{{formatItens(item.quemusou)}}</td>
+		</tr>
+	</table>
+	<br>
+	<table>
+		<tr>
+			<th colspan="5">Grupos</th>
+		</tr>
+		<tr>
+			<th>ID</th><th>Item</th><th>Preco</th><th>Quem pagou?</th><th>Quem usou?</th>
+		</tr>
+		<tr v-for="item in itens">
+			<td>{{item.id}}</td><td>{{item.nome}}</td><td>{{item.valor}}</td><td>{{ getPessoa(item.quempagou).nome }}</td><td>{{formatItens(item.quemusou)}}</td>
 		</tr>
 	</table>
 </div>
 <body>
-<script>
-	function filterPessoas(pessoa) {
-		return pessoa.checked;
-	}
-
-	var app = new Vue({
-		data: {
-			itens: [], // { id: "", nome: "", valor: "", quempagou: 0, quemusou: [1, 2, 3]}
-			pessoas: [], // { id: 0, nome: ""}
-			indexPessoa: 1,
-			inputPessoaNome: "",
-			indexItem: 1,
-			inputItem: {
-				id: 0,
-				nome: "",
-				valor: "",
-				quempagou: 0,
-				quemusou: []
-			}
-		},
-		methods: {
-			adicionarPessoa() {
-				this.pessoas.push({ 
-					id: this.indexPessoa, 
-					nome: this.inputPessoaNome, 
-					checked: false
-				});
-				this.inputPessoaNome = "";
-				this.indexPessoa++;
-			},
-			adicionarItem() {
-				this.pessoas.filter(function (pessoa) {
-					return pessoa.checked;
-				}).forEach(function(element) {
-					console.log(element.id);
-					app.inputItem.quemusou.push(element.id);
-				});
-				
-				this.itens.push({ 
-					id: this.indexItem,
-					nome: this.inputItem.nome,
-					valor: this.inputItem.valor,
-					quemusou: this.inputItem.quemusou,
-					quempagou: this.inputItem.quempagou
-				});
-
-				this.indexItem++;
-				this.inputItem.nome = "";
-				this.inputItem.valor = 0;
-				this.inputItem.quemusou = [];
-				this.inputItem.quempagou = 0;
-			},
-			formatItens(arr) {
-				let ret = "";
-				arr.forEach(function(item) {
-					if (ret != "") {
-						ret = ret + " / ";
-					}
-					ret = ret + item;
-				});
-				return ret;
-			}
-		}
-	}).$mount("#app");
-</script>
+<script src="index.js"></script>
 </body>
 </html>
