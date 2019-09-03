@@ -2,7 +2,7 @@
 <html>
 <head>
 <title>Contas</title>
-<script src="vue.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 <style>
 table, th, td {
 	border: 1px solid black;
@@ -21,7 +21,7 @@ table {
 </head>
 <div id="app">
 	<br>
-	Nome: <input v-model="inputPessoaNome"><br>
+	Nome: <input v-model="inputPessoaNome" v-on:keyup.13="adicionarPessoa"><br>
 	<button v-on:click="adicionarPessoa">Add Pessoa</button><br>
 	<br>
 	<table>
@@ -37,13 +37,13 @@ table {
 	</table>
 	<br>
 	Nome: <input v-model="inputItem.nome"><br>
-	Valor: <input v-model="inputItem.valor"><br>
+	Valor: <input type="number" v-model="inputItem.valor"><br>
 	Quem Pagou:<select v-model="inputItem.quempagou">
 		<option v-for="pessoa in pessoas" v-bind:value="pessoa.id">{{pessoa.nome}}</option>
 	</select><br>
 	Quem usou: 
 	<span v-for="pessoa in pessoas">
-		{{pessoa.nome}}: <input type="checkbox" v-on:click="setaCheckbox(pessoa.id)" :checked="pessoa.checked">
+		{{pessoa.nome}}: <input type="checkbox" v-model="pessoa.checked">
 	</span>
 	<button v-on:click="adicionarItem">Add Item</button><br>
 	<br>
@@ -52,15 +52,19 @@ table {
 			<th colspan="5">Itens</th>
 		</tr>
 		<tr>
-			<th>ID</th><th>Item</th><th>Preço</th><th>Quem pagou?</th><th>Quem usou?</th>
+			<th>ID</th><th>Item</th><th>Preco</th><th>Quem pagou?</th><th>Quem usou?</th>
 		</tr>
 		<tr v-for="item in itens">
-			<td>{{item.id}}</td><td>{{item.nome}}</td><td>{{item.valor}}</td><td>{{item.quempagou}}</td><td>{{item.quemusou}}</td>
+			<td>{{item.id}}</td><td>{{item.nome}}</td><td>{{item.valor}}</td><td>{{item.quempagou}}</td><td>{{formatItens(item.quemusou)}}</td>
 		</tr>
 	</table>
 </div>
 <body>
 <script>
+	function filterPessoas(pessoa) {
+		return pessoa.checked;
+	}
+
 	var app = new Vue({
 		data: {
 			itens: [], // { id: "", nome: "", valor: "", quempagou: 0, quemusou: [1, 2, 3]}
@@ -73,21 +77,50 @@ table {
 				nome: "",
 				valor: "",
 				quempagou: 0,
-				quemusou: ""
+				quemusou: []
 			}
 		},
 		methods: {
 			adicionarPessoa() {
-				this.pessoas.push({ id: this.indexPessoa, nome: this.inputPessoaNome, checked: false});
+				this.pessoas.push({ 
+					id: this.indexPessoa, 
+					nome: this.inputPessoaNome, 
+					checked: false
+				});
 				this.inputPessoaNome = "";
 				this.indexPessoa++;
 			},
 			adicionarItem() {
-				alert('quemusou',this.inputItem.quemusou);
+				this.pessoas.filter(function (pessoa) {
+					return pessoa.checked;
+				}).forEach(function(element) {
+					console.log(element.id);
+					app.inputItem.quemusou.push(element.id);
+				});
+				
+				this.itens.push({ 
+					id: this.indexItem,
+					nome: this.inputItem.nome,
+					valor: this.inputItem.valor,
+					quemusou: this.inputItem.quemusou,
+					quempagou: this.inputItem.quempagou
+				});
+
+				this.indexItem++;
+				this.inputItem.nome = "";
+				this.inputItem.valor = 0;
+				this.inputItem.quemusou = [];
+				this.inputItem.quempagou = 0;
 			},
-			setaCheckbox(item) {
-				//if ()
-				alert(item);
+			formatItens(arr) {
+				let ret = "";
+				arr.forEach(function(item) {
+					if (ret != "") {
+						ret = ret + " / ";
+					}
+					ret = ret + item;
+				});
+				return ret;
 			}
 		}
 	}).$mount("#app");
