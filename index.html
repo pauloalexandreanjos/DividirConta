@@ -64,10 +64,10 @@ table {
 			<th colspan="5">Grupos</th>
 		</tr>
 		<tr>
-			<th>ID</th><th>Item</th><th>Preco</th><th>Quem pagou?</th><th>Quem usou?</th>
+			<th>Membros</th><th>Total</th><th>Contribuicao</th>
 		</tr>
 		<tr v-for="item in itens">
-			<td>{{item.id}}</td><td>{{item.nome}}</td><td>{{item.valor}}</td><td>{{ getPessoa(item.quempagou).nome }}</td><td>{{formatItens(item.quemusou)}}</td>
+			
 		</tr>
 	</table>
 </div>
