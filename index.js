@@ -2,6 +2,10 @@ function filterPessoas(pessoa) {
     return pessoa.checked;
 }
 
+function ordemCrescente(a, b) {
+	return a > b ? 1 : -1;
+}
+
 var app = new Vue({
     data: {
         itens: [
@@ -47,7 +51,7 @@ var app = new Vue({
                 app.inputItem.quemusou.push(element.id);
             });
             
-			this.inputItem.quemusou = this.inputItem.quemusou.sort(function(a,b) { return a > b ? 1 : -1 });
+			this.inputItem.quemusou = this.inputItem.quemusou.sort(ordemCrescente);
 			
             this.itens.push({ 
                 id: this.indexItem,
@@ -56,7 +60,9 @@ var app = new Vue({
                 quemusou: this.inputItem.quemusou,
                 quempagou: this.inputItem.quempagou
             });
-
+			
+			atualizarValoresItem(this.inputItem);
+			
             this.indexItem++;
             this.inputItem.nome = "";
             this.inputItem.valor = 0;
@@ -87,44 +93,50 @@ var app = new Vue({
             return ret;
         },
 		atualizarGrupos() {
-			this.itensGrupos = [];
-			app = this;
+			console.log("Atualizando grupos...");
+			let app = this;
 			this.itens.forEach(function(item) {
+				console.log("Inserindo item",item.id);
 				let chave = item.quemusou.join("/");
 				if (!app.grupos[chave]) {
+					console.log("Grupo",chave,"nao existe... criando a lista.");
 					app.grupos[chave] = [];
 				}
-				//console.log("Pushing item",item.id,"into group",chave);
+				console.log("Pushing item",item.id,"into group",chave);
 				app.grupos[chave].push(item.id);
 			});
 		},
-		/*obterItensGrupo(chave) {
-			//return this.itensGrupos;
-			return this.grupos.filter(function(elm) {
-				return elm.chave == chave;
-			})
-			.map(function(elm) {
-				return elm.idItem;
-			});
-		},*/
-		obterValorGrupo(chave) {
-			let itens = this.grupos[chave].itens;
-			console.log(JSON.stringify(itens));
+		atualizarValoresItem(item) {
 			let app = this;
-			return itens.reduce(function(total, item) {
-				console.log("Reducing",item,"valor",app.getItem(item).valor);
-				return total + app.getItem(item).valor;
-			}, 0);
+			let valorCadaUser = item.valor/item.quemusou.length;
+			item.quemusou.forEach(function(idPessoa) {
+				let pessoa = app.getPessoa(idPessoa);
+				if (!pessoa.deve[item.quempagou]) {
+					pessoa.deve[item.quempagou] = 0;
+				}
+				pessoa.deve[item.quempagou] = pessoa.deve[item.quempagou] + valorCadaUser;
+			});
+		},
+		atualizarGrupos2() {
+			let app = this;
+			this.itens.forEach(function(item) {
+				app.atualizarValoresItem(item);
+			});
+		},
+		getValorDevido(idDevedor,idRecebedor) {
+			let devedor = this.getPessoa(idDevedor);
+			let recebedor = this.getPessoa(idRecebedor);
+			let valor = devedor.deve[idRecebedor]-recebedor.deve[idDevedor];
+			return valor; // > 0 ? valor : 0;
 		}
     },
 	watch: {
-		itens: this.atualizarGrupos,
-		grupo: function() {
+		itens: this.atualizarGrupos2,
+		grupos: function() {
 			
 		}
 	},
 	created() {
-		this.atualizarGrupos();
-		console.log(this.obterValorGrupo("1/2/3/4/5"));
+		this.atualizarGrupos2();
 	}
 }).$mount("#app");

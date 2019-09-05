@@ -26,13 +26,13 @@ table {
 	<br>
 	<table>
 		<tr>
-			<th colspan="2">Pessoas</th>
+			<th colspan="3">Pessoas</th>
 		</tr>
 		<tr>
-			<th>ID</th><th>Nome</th>
+			<th>ID</th><th>Nome</th><th>Deve</th>
 		</tr>
 		<tr v-for="pessoa in pessoas">
-			<td>{{pessoa.id}}</td><td>{{pessoa.nome}}</td>
+			<td>{{pessoa.id}}</td><td>{{pessoa.nome}}</td><td>{{pessoa.deve}}</td>
 		</tr>
 	</table>
 	<br>
@@ -59,17 +59,11 @@ table {
 		</tr>
 	</table>
 	<br>
-	<table>
-		<tr>
-			<th colspan="3">Grupos</th>
-		</tr>
-		<tr>
-			<th>Chave</th><th>Item</th>
-		</tr>
-		<!--tr v-for="grupo, chave in grupos">
-			<td>{{chave}}</td><td>{{getItem(grupo.idItem).nome}}</td>
-		</tr-->
-	</table>
+	<div>
+		<div v-for="pessoa in pessoas">
+			<span v-for="valor, devedorId in pessoa.deve">{{pessoa.nome}} deve {{getValorDevido(pessoa.id,devedorId)}} para {{getPessoa(devedorId).nome}} <br></span>
+		</div>
+	</div>
 </div>
 <body>
 <script src="index.js"></script>
