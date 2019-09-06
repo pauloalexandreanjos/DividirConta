@@ -4,6 +4,9 @@
 <title>Contas</title>
 <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 <style>
+body{
+	font-family: 'Courier New', Courier, monospace;
+}
 table, th, td {
 	border: 1px solid black;
 	border-collapse: collapse;
@@ -13,6 +16,10 @@ th, td {
 }
 th {
   text-align: center;
+  background-color: #d5dbe7;
+}
+td {
+	background-color: #e2e2e2;
 }
 table {
   border-spacing: 5px;
@@ -32,7 +39,7 @@ table {
 			<th>ID</th><th>Nome</th><th>Deve</th>
 		</tr>
 		<tr v-for="pessoa in pessoas">
-			<td>{{pessoa.id}}</td><td>{{pessoa.nome}}</td><td>{{pessoa.deve}}</td>
+			<td>{{pessoa.id}}</td><td>{{pessoa.nome}}</td><td>{{dividas[pessoa.id]}}</td>
 		</tr>
 	</table>
 	<br>
@@ -60,8 +67,8 @@ table {
 	</table>
 	<br>
 	<div>
-		<div v-for="pessoa in pessoas">
-			<span v-for="valor, devedorId in pessoa.deve">{{pessoa.nome}} deve {{getValorDevido(pessoa.id,devedorId)}} para {{getPessoa(devedorId).nome}} <br></span>
+		<div v-for="pessoaId in dividas">
+			<span v-for="valor, devedorId in dividas[pessoaId]">{{pessoaId}} deve {{ valor-dividas[devedorId][pessoa.id] }} para {{getPessoa(devedorId).nome}} <br></span>
 		</div>
 	</div>
 </div>

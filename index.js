@@ -15,15 +15,15 @@ var app = new Vue({
 			{id:4, nome:"CERVEJA", valor:50.0, quempagou: 2, quemusou: [1,2,4]}
         ],
         pessoas: [
-            {id:1, nome:"PAULO", checked: false, deve:{} },
-            {id:2, nome:"FABIO", checked: false, deve:{}},
-            {id:3, nome:"CRISTOPHER", checked: false, deve:{}},
-            {id:4, nome:"CRISTIANO", checked: false, deve:{}},
-            {id:5, nome:"ALAN", checked: false, deve:{}},
+            {id:1, nome:"PAULO", checked: false },
+            {id:2, nome:"FABIO", checked: false},
+            {id:3, nome:"CRISTOPHER", checked: false},
+            {id:4, nome:"CRISTIANO", checked: false},
+            {id:5, nome:"ALAN", checked: false},
         ],
-        indexPessoa: 1,
+        indexPessoa: 6,
         inputPessoaNome: "",
-        indexItem: 1,
+        indexItem: 5,
         inputItem: {
             id: 0,
             nome: "",
@@ -31,19 +31,45 @@ var app = new Vue({
             quempagou: 0,
             quemusou: []
         },
-		grupos: {}
+		dividas: {
+            1: "",
+            2: "",
+            3: "",
+            4: "",
+            5: "",
+        }
     },
     methods: {
         adicionarPessoa() {
+            if (this.inputPessoaNome == "") {
+                alert("Nome da pessoa nao foi escolhido!")
+                return;
+            }
+            
             this.pessoas.push({ 
                 id: this.indexPessoa, 
                 nome: this.inputPessoaNome, 
-                checked: false
+                checked: false,
+                deve:{}
             });
             this.inputPessoaNome = "";
             this.indexPessoa++;
         },
         adicionarItem() {
+            
+            if (this.inputItem.nome == "") {
+                alert("Nome do item nao definido!");
+                return;
+            }
+            if (this.inputItem.valor == "" || this.inputItem.valor == 0) {
+                alert("Valor do item nao definido!");
+                return;
+            }
+            if (this.inputItem.quempagou == "") {
+                alert("Quem pagou nao foi definido!");
+                return;
+            }
+
             this.pessoas.filter(function (pessoa) {
                 return pessoa.checked;
             }).forEach(function(element) {
@@ -51,6 +77,11 @@ var app = new Vue({
                 app.inputItem.quemusou.push(element.id);
             });
             
+            if (this.inputItem.quemusou.length == 0) {
+                alert("Quem usou nao foi definido!");
+                return;
+            }
+
 			this.inputItem.quemusou = this.inputItem.quemusou.sort(ordemCrescente);
 			
             this.itens.push({ 
@@ -61,7 +92,7 @@ var app = new Vue({
                 quempagou: this.inputItem.quempagou
             });
 			
-			atualizarValoresItem(this.inputItem);
+			this.atualizarValoresItem(this.inputItem);
 			
             this.indexItem++;
             this.inputItem.nome = "";
@@ -110,14 +141,17 @@ var app = new Vue({
 			let app = this;
 			let valorCadaUser = item.valor/item.quemusou.length;
 			item.quemusou.forEach(function(idPessoa) {
-				let pessoa = app.getPessoa(idPessoa);
-				if (!pessoa.deve[item.quempagou]) {
-					pessoa.deve[item.quempagou] = 0;
-				}
-				pessoa.deve[item.quempagou] = pessoa.deve[item.quempagou] + valorCadaUser;
+				//let pessoa = app.getPessoa(idPessoa);
+                if (!app.dividas[idPessoa]) {
+                    app.dividas[idPessoa] = {}
+                }
+                
+                app.dividas[idPessoa][item.quempagou] = valorCadaUser;
+
+				//pessoa.deve[item.quempagou] = pessoa.deve[item.quempagou] + valorCadaUser;
 			});
 		},
-		atualizarGrupos2() {
+		atualizarValores() {
 			let app = this;
 			this.itens.forEach(function(item) {
 				app.atualizarValoresItem(item);
@@ -127,16 +161,31 @@ var app = new Vue({
 			let devedor = this.getPessoa(idDevedor);
 			let recebedor = this.getPessoa(idRecebedor);
 			let valor = devedor.deve[idRecebedor]-recebedor.deve[idDevedor];
-			return valor; // > 0 ? valor : 0;
-		}
+			return valor > 0 ? valor : 0;
+        },
+        normalizaDividas() {
+            let app = this;
+            this.pessoas.forEach(function(pessoa){
+                console.log("Normalizando pessoa",pessoa.id," - ",pessoa.nome);
+                let dividasDaPessoa = app.dividas[pessoa.id];
+                if(!dividasDaPessoa){
+                    dividasDaPessoa = {};
+                }
+                app.pessoas.forEach(function(pessoa2) {
+                    console.log("Normalizando pessoa2",pessoa2.id," - ",pessoa2.nome);
+                    if(!dividasDaPessoa[pessoa2.id]) {
+                        dividasDaPessoa[pessoa2.id] = 0;
+                    }
+                });
+                app.dividas[pessoa.id] = dividasDaPessoa;
+            });
+        }
     },
 	watch: {
-		itens: this.atualizarGrupos2,
-		grupos: function() {
-			
-		}
+        itens: function(){ this.atualizarValores() },
+        dividas: function(){ this.normalizaDividas() }
 	},
 	created() {
-		this.atualizarGrupos2();
+		this.atualizarValores();
 	}
 }).$mount("#app");
