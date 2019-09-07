@@ -3,7 +3,7 @@ function filterPessoas(pessoa) {
 }
 
 function ordemCrescente(a, b) {
-	return a > b ? 1 : -1;
+    return a > b ? 1 : -1;
 }
 
 var app = new Vue({
@@ -21,9 +21,9 @@ var app = new Vue({
             {id:4, nome:"CRISTIANO", checked: false},
             {id:5, nome:"ALAN", checked: false},
         ],
-        indexPessoa: 6,
+        indexPessoa: 1,
         inputPessoaNome: "",
-        indexItem: 5,
+        indexItem: 1,
         inputItem: {
             id: 0,
             nome: "",
@@ -31,32 +31,81 @@ var app = new Vue({
             quempagou: 0,
             quemusou: []
         },
-		dividas: {
-            1: "",
-            2: "",
-            3: "",
-            4: "",
-            5: "",
+        dividas: []
+    },
+    computed: {
+        dividasNorm: function () {
+            let app = this;
+            let retDiv = [];
+
+            this.dividas.forEach(function (divida) {
+                let busca = retDiv.filter(function (div) {
+                    return div.paga == divida.recebe && div.recebe == divida.paga;
+                });
+
+                if (busca.length > 0) {
+                    let divContra = busca[0];
+                    if (divContra.valor < divida.valor) {
+                        divida.valor -= divContra.valor;
+                        // Remove a divida contraria do array
+                        retDiv = retDiv.filter(function (obj) { return obj != divContra });
+                        retDiv.push(divida);
+                    } else {
+                        divContra.valor -= divida.valor;
+                    }
+
+                } else {
+                    retDiv.push(divida);
+                }
+            });
+
+            let ret = retDiv.filter(function (div) {
+                return div.paga != div.recebe && div.valor > 0;
+            });
+
+            return ret.sort(function(a,b) {
+                return b.paga - a.paga;
+            });
         }
     },
     methods: {
+        getPessoa(id) {
+            return this.pessoas.filter(function (pessoa) {
+                return pessoa.id == id;
+            })[0];
+        },
+        getItem(id) {
+            return this.itens.filter(function (item) {
+                return item.id == id;
+            })[0];
+        },
+        getDivida(quemPaga, quemRecebe) {
+            let ret;
+            let dividasValidas = this.dividas.filter(function (div) {
+                return div.paga == quemPaga && div.recebe == quemRecebe;
+            });
+            if (dividasValidas.length > 0) {
+                ret = dividasValidas[0];
+            }
+            return ret;
+        },
         adicionarPessoa() {
             if (this.inputPessoaNome == "") {
                 alert("Nome da pessoa nao foi escolhido!")
                 return;
             }
-            
-            this.pessoas.push({ 
-                id: this.indexPessoa, 
-                nome: this.inputPessoaNome, 
+
+            this.pessoas.push({
+                id: this.indexPessoa,
+                nome: this.inputPessoaNome,
                 checked: false,
-                deve:{}
+                deve: {}
             });
             this.inputPessoaNome = "";
             this.indexPessoa++;
         },
         adicionarItem() {
-            
+
             if (this.inputItem.nome == "") {
                 alert("Nome do item nao definido!");
                 return;
@@ -72,49 +121,39 @@ var app = new Vue({
 
             this.pessoas.filter(function (pessoa) {
                 return pessoa.checked;
-            }).forEach(function(element) {
-                console.log(element.id);
+            }).forEach(function (element) {
+
                 app.inputItem.quemusou.push(element.id);
             });
-            
+
             if (this.inputItem.quemusou.length == 0) {
                 alert("Quem usou nao foi definido!");
                 return;
             }
 
-			this.inputItem.quemusou = this.inputItem.quemusou.sort(ordemCrescente);
-			
-            this.itens.push({ 
+            this.inputItem.quemusou = this.inputItem.quemusou.sort(ordemCrescente);
+
+            this.itens.push({
                 id: this.indexItem,
                 nome: this.inputItem.nome,
                 valor: this.inputItem.valor,
                 quemusou: this.inputItem.quemusou,
                 quempagou: this.inputItem.quempagou
             });
-			
-			this.atualizarValoresItem(this.inputItem);
-			
+
+            this.atualizarValoresItem(this.inputItem);
+
             this.indexItem++;
             this.inputItem.nome = "";
             this.inputItem.valor = 0;
             this.inputItem.quemusou = [];
             this.inputItem.quempagou = 0;
         },
-        getPessoa(id) {
-            return this.pessoas.filter(function(pessoa) {
-                return pessoa.id == id;
-            })[0];
-        },
-        getItem(id) {
-            return this.itens.filter(function(item) {
-                return item.id == id;
-            })[0];
-        },
         formatItens(arr) {
             let ret = "";
             let pessoas = this.pessoas;
             let app = this;
-            arr.forEach(function(item) {
+            arr.forEach(function (item) {
                 var pess = app.getPessoa(item);
                 if (ret != "") {
                     ret = ret + " / ";
@@ -123,69 +162,37 @@ var app = new Vue({
             });
             return ret;
         },
-		atualizarGrupos() {
-			console.log("Atualizando grupos...");
-			let app = this;
-			this.itens.forEach(function(item) {
-				console.log("Inserindo item",item.id);
-				let chave = item.quemusou.join("/");
-				if (!app.grupos[chave]) {
-					console.log("Grupo",chave,"nao existe... criando a lista.");
-					app.grupos[chave] = [];
-				}
-				console.log("Pushing item",item.id,"into group",chave);
-				app.grupos[chave].push(item.id);
-			});
-		},
-		atualizarValoresItem(item) {
-			let app = this;
-			let valorCadaUser = item.valor/item.quemusou.length;
-			item.quemusou.forEach(function(idPessoa) {
-				//let pessoa = app.getPessoa(idPessoa);
-                if (!app.dividas[idPessoa]) {
-                    app.dividas[idPessoa] = {}
-                }
-                
-                app.dividas[idPessoa][item.quempagou] = valorCadaUser;
-
-				//pessoa.deve[item.quempagou] = pessoa.deve[item.quempagou] + valorCadaUser;
-			});
-		},
-		atualizarValores() {
-			let app = this;
-			this.itens.forEach(function(item) {
-				app.atualizarValoresItem(item);
-			});
-		},
-		getValorDevido(idDevedor,idRecebedor) {
-			let devedor = this.getPessoa(idDevedor);
-			let recebedor = this.getPessoa(idRecebedor);
-			let valor = devedor.deve[idRecebedor]-recebedor.deve[idDevedor];
-			return valor > 0 ? valor : 0;
-        },
-        normalizaDividas() {
+        atualizarValoresItem(item) {
             let app = this;
-            this.pessoas.forEach(function(pessoa){
-                console.log("Normalizando pessoa",pessoa.id," - ",pessoa.nome);
-                let dividasDaPessoa = app.dividas[pessoa.id];
-                if(!dividasDaPessoa){
-                    dividasDaPessoa = {};
-                }
-                app.pessoas.forEach(function(pessoa2) {
-                    console.log("Normalizando pessoa2",pessoa2.id," - ",pessoa2.nome);
-                    if(!dividasDaPessoa[pessoa2.id]) {
-                        dividasDaPessoa[pessoa2.id] = 0;
+            let valorCadaUser = item.valor / item.quemusou.length;
+
+            item.quemusou.forEach(function (idPessoa) {
+
+                let divida = app.getDivida(idPessoa, item.quempagou);
+                if (!divida) {
+                    divida = {
+                        paga: idPessoa,
+                        recebe: item.quempagou,
+                        valor: valorCadaUser
                     }
-                });
-                app.dividas[pessoa.id] = dividasDaPessoa;
+                    app.dividas.push(divida);
+                } else {
+                    divida.valor += valorCadaUser;
+                }
+
+            });
+        },
+        atualizarValores() {
+            let app = this;
+            this.itens.forEach(function (item) {
+                app.atualizarValoresItem(item);
             });
         }
     },
-	watch: {
-        itens: function(){ this.atualizarValores() },
-        dividas: function(){ this.normalizaDividas() }
-	},
-	created() {
-		this.atualizarValores();
-	}
+    watch: {
+
+    },
+    created() {
+        this.atualizarValores();
+    }
 }).$mount("#app");

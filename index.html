@@ -24,9 +24,23 @@ td {
 table {
   border-spacing: 5px;
 }
+.center{
+	width: 80%;
+	margin:auto;
+}
+.content {
+	background-color: rgb(201, 201, 201);
+	border: 1px solid black;
+	padding: 20px 20px 20px 20px;
+}
+.results {
+	background-color: white;
+	border: 1px solid black;
+	padding: 20px 20px 20px 20px;
+}
 </style>
 </head>
-<div id="app">
+<div class="center content" id="app">
 	<br>
 	Nome: <input v-model="inputPessoaNome" v-on:keyup.13="adicionarPessoa"><br>
 	<button v-on:click="adicionarPessoa">Add Pessoa</button><br>
@@ -36,10 +50,10 @@ table {
 			<th colspan="3">Pessoas</th>
 		</tr>
 		<tr>
-			<th>ID</th><th>Nome</th><th>Deve</th>
+			<th>ID</th><th>Nome</th>
 		</tr>
 		<tr v-for="pessoa in pessoas">
-			<td>{{pessoa.id}}</td><td>{{pessoa.nome}}</td><td>{{dividas[pessoa.id]}}</td>
+			<td>{{pessoa.id}}</td><td>{{pessoa.nome}}</td>
 		</tr>
 	</table>
 	<br>
@@ -66,9 +80,9 @@ table {
 		</tr>
 	</table>
 	<br>
-	<div>
-		<div v-for="pessoaId in dividas">
-			<span v-for="valor, devedorId in dividas[pessoaId]">{{pessoaId}} deve {{ valor-dividas[devedorId][pessoa.id] }} para {{getPessoa(devedorId).nome}} <br></span>
+	<div class="results">
+		<div v-for="divida in dividasNorm">
+			<span>{{getPessoa(divida.paga).nome}} deve {{ divida.valor }} para {{getPessoa(divida.recebe).nome}} <br></span>
 		</div>
 	</div>
 </div>
