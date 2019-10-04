@@ -82,7 +82,7 @@ table {
 	<br>
 	<div class="results">
 		<div v-for="divida in dividasNorm">
-			<span>{{getPessoa(divida.paga).nome}} deve {{ divida.valor }} para {{getPessoa(divida.recebe).nome}} <br></span>
+			<span>{{getPessoa(divida.paga).nome}} deve {{ formater.format(divida.valor) }} para {{getPessoa(divida.recebe).nome}} <br></span>
 		</div>
 	</div>
 </div>

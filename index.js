@@ -9,10 +9,9 @@ function ordemCrescente(a, b) {
 var app = new Vue({
     data: {
         itens: [
-            {id:1, nome:"JOGOS", valor:12.0, quempagou: 1, quemusou: [1,2,3,4,5]},
-            {id:2, nome:"COCA-COLA", valor:12.0, quempagou: 5, quemusou: [1,2,3,4,5]},
-            {id:3, nome:"CACHORRO-QUENTE", valor:12.0, quempagou: 3, quemusou: [1,2,3,4,5]},
-			{id:4, nome:"CERVEJA", valor:50.0, quempagou: 2, quemusou: [1,2,4]}
+            {id:1, nome:"JOGOS", valor:60, quempagou: 1, quemusou: [1,2,3,4,5]},
+            {id:2, nome:"COCA-COLA", valor:32, quempagou: 5, quemusou: [1,2,3,4,5]},
+            {id:3, nome:"CACHORRO-QUENTE", valor:25, quempagou: 3, quemusou: [1,2,3,4,5]}
         ],
         pessoas: [
             {id:1, nome:"PAULO", checked: false },
@@ -21,7 +20,7 @@ var app = new Vue({
             {id:4, nome:"CRISTIANO", checked: false},
             {id:5, nome:"ALAN", checked: false},
         ],
-        indexPessoa: 1,
+        indexPessoa: 6,
         inputPessoaNome: "",
         indexItem: 1,
         inputItem: {
@@ -31,6 +30,7 @@ var app = new Vue({
             quempagou: 0,
             quemusou: []
         },
+		formater: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }),
         dividas: []
     },
     computed: {
